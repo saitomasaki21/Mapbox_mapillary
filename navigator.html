@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Simple Navigator</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script src="https://unpkg.com/mapillary-js/dist/mapillary.min.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/mapillary-js/dist/mapillary.min.css">
+    <style>
+        #map { position: absolute; top: 0; bottom: 0; width: 50%; }
+        #viewer { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="viewer"></div>
+    <script type="module">
+        import { imageKeys } from './imageKeys.js'; // Import the predefined list
+
+        // Mapbox Access Token
+        mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+
+        // Initialize Mapbox Map
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [0, 0],
+            zoom: 2,
+        });
+
+        // Initialize Mapillary Viewer
+        const mly = new Mapillary.Viewer({
+            accessToken: 'YOUR_MAPILLARY_ACCESS_TOKEN',
+            container: 'viewer',
+            imageId: imageKeys[0], // Start with the first image
+        });
+
+        // Add points to the map for each image
+        imageKeys.forEach((key, index) => {
+            // Fetch image metadata
+            fetch(`https://graph.mapillary.com/${key}?fields=geometry`, {
+                headers: {
+                    Authorization: `OAuth YOUR_MAPILLARY_ACCESS_TOKEN`,
+                },
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    const coords = data.geometry.coordinates;
+                    const marker = new mapboxgl.Marker()
+                        .setLngLat([coords[0], coords[1]])
+                        .setPopup(new mapboxgl.Popup().setText(`Image ${index + 1}`))
+                        .addTo(map);
+
+                    // On marker click, show the corresponding image
+                    marker.getElement().addEventListener('click', () => {
+                        mly.moveTo(key);
+                    });
+                })
+                .catch((error) => console.error('Error fetching image metadata:', error));
+        });
+
+        // Center map based on the first image
+        fetch(`https://graph.mapillary.com/${imageKeys[0]}?fields=geometry`, {
+            headers: {
+                Authorization: `OAuth YOUR_MAPILLARY_ACCESS_TOKEN`,
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                const coords = data.geometry.coordinates;
+                map.setCenter([coords[0], coords[1]]);
+                map.setZoom(16);
+            })
+            .catch((error) => console.error('Error centering map:', error));
+    </script>
+</body>
+</html>
