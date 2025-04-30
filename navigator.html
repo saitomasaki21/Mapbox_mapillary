@@ -20,7 +20,7 @@
         import { imageKeys } from './imageKeys.js'; // Import the predefined list
 
         // Mapbox Access Token
-        mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmVtZW5kb25jYSIsImEiOiJjbGxrMmRidjYyaGk4M21tZ2hhanFjMjVwIn0.4_fHgnbXRc1Hxg--Bs_kkg';
 
         // Initialize Mapbox Map
         const map = new mapboxgl.Map({
@@ -32,7 +32,7 @@
 
         // Initialize Mapillary Viewer
         const mly = new Mapillary.Viewer({
-            accessToken: 'YOUR_MAPILLARY_ACCESS_TOKEN',
+            accessToken: 'MLY|9717590475015468|bfbad480ee462727bc271c85a9e71ea5',
             container: 'viewer',
             imageId: imageKeys[0], // Start with the first image
         });
